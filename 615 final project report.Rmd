@@ -1,0 +1,307 @@
+---
+title: "Final Project Report"
+author: "Zihao Zhang"
+date: "2024-12-12"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introduction
+Cyprus, an island nation in the Eastern Mediterranean, is uniquely positioned at the crossroads of Europe, Asia, and Africa. With a rich cultural and historical heritage spanning thousands of years, the country has been a significant hub for trade, culture, and diplomacy.
+
+This report provides an in-depth analysis of Cyprus, exploring its key demographic and economic trends, comparing these variables with Malta, a similar island nation, and projecting population changes using robust statistical methods. Additionally, a SWOT analysis highlights the strengths, weaknesses, opportunities, and threats that shape the nation's future. The insights presented in this report aim to offer a comprehensive understanding of Cyprus' current dynamics and future prospects.
+
+# General Description of Cyprus
+
+Cyprus is an island country located in the Eastern Mediterranean Sea, south of Turkey, west of Syria and Lebanon, northwest of Israel, and southeast of Greece. With a strategic location at the crossroads of Europe, Asia, and Africa, Cyprus has been a significant trade and cultural hub throughout history.
+
+## Government
+Cyprus is a presidential republic. The President of Cyprus serves as both the head of state and government. The island is divided into the internationally recognized Republic of Cyprus, which controls the southern two-thirds, and the Turkish Republic of Northern Cyprus, recognized only by Turkey, in the northern third.
+
+## Economy
+Cyprus has a developed, service-based economy. Tourism is a cornerstone of the economy, alongside shipping, financial services, and real estate. The country is a member of the European Union and uses the Euro as its currency. Cyprus is known for its low corporate tax rates, which attract international businesses, particularly in the finance and shipping industries.
+
+## Population
+The population of Cyprus is approximately 1.2 million people. The two main ethnic groups are Greek Cypriots, who make up about 77% of the population, and Turkish Cypriots, who make up around 18%. English is widely spoken, alongside Greek and Turkish.
+
+## Natural Environment
+Cyprus enjoys a Mediterranean climate with hot, dry summers and mild, wet winters. The island is known for its stunning beaches, mountain ranges such as the Troodos Mountains, and diverse flora and fauna. Endangered species such as the Mediterranean monk seal and green turtles nest along the island's coasts.
+
+## History
+Cyprus has a rich history spanning over 9,000 years, from the Neolithic period to modern times. It was influenced by various civilizations, including Mycenaean Greeks, Phoenicians, Assyrians, Egyptians, Persians, Romans, Byzantines, Crusaders, Venetians, Ottomans, and the British. The island gained independence from Britain in 1960, but tensions between Greek and Turkish Cypriots led to the division of the island in 1974. Efforts to reunify the island continue to this day.
+
+## Cultural Heritage
+Cyprus is home to numerous UNESCO World Heritage sites, such as the painted churches in the Troodos region and the archaeological remains of Paphos. The island's cuisine blends Greek, Middle Eastern, and Turkish influences, featuring dishes like halloumi cheese, souvlaki, and moussaka.
+
+# Data Source
+The data used in this analysis was obtained from the World Bank's World Development Indicators (WDI) via the R package "WDI." More information about the WDI package can be found at this link: [https://cran.r-project.org/web/packages/WDI/WDI.pdf](https://cran.r-project.org/web/packages/WDI/WDI.pdf).
+
+# Trends of Key Economic Variables
+
+```{r trends, echo=TRUE, message=FALSE, warning=FALSE}
+library(WDI)
+library(ggplot2)
+library(dplyr)
+
+# Fetching data
+variables <- c("NY.GDP.MKTP.CD", "SP.POP.TOTL", "ST.INT.ARVL", "FP.CPI.TOTL", "NY.GDP.PCAP.CD")
+data <- WDI(
+  country = "CYP",
+  indicator = variables,
+  start = 2000,
+  end = 2022
+) %>%
+  rename(
+    GDP = NY.GDP.MKTP.CD,
+    Population = SP.POP.TOTL,
+    Visitors = ST.INT.ARVL,
+    InflationRate = FP.CPI.TOTL,
+    IncomePerCapita = NY.GDP.PCAP.CD,
+    Country = country,
+    Year = year
+  ) %>%
+  mutate(across(GDP:IncomePerCapita, as.numeric))
+
+# GDP Trend
+gdp_plot <- ggplot(data, aes(x = Year, y = GDP)) +
+  geom_line(color = "blue", size = 1) +
+  labs(
+    title = "Cyprus GDP Trends",
+    x = "Year",
+    y = "GDP (Current US$)"
+  ) +
+  theme_minimal()
+print(gdp_plot)
+```
+Cyprus' GDP has grown steadily over the years, driven by its robust service sector and thriving tourism industry. Despite occasional global economic challenges, the country has demonstrated resilience and steady economic progress.
+
+```{r}
+# Population Trend
+population_plot <- ggplot(data, aes(x = Year, y = Population)) +
+  geom_line(color = "blue", size = 1) +
+  labs(
+    title = "Cyprus Population Trends",
+    x = "Year",
+    y = "Population"
+  ) +
+  theme_minimal()
+print(population_plot)
+
+```
+Cyprus' population has shown gradual growth, supported by stable birth rates and immigration trends. This growth reflects the country's economic stability and social infrastructure.
+
+```{r}
+# Visitors Trend
+visitors_plot <- ggplot(data, aes(x = Year, y = Visitors)) +
+  geom_line(color = "blue", size = 1) +
+  labs(
+    title = "Cyprus Visitors Trends",
+    x = "Year",
+    y = "Number of Visitors"
+  ) +
+  theme_minimal()
+print(visitors_plot)
+
+```
+Visitor trends highlight Cyprus' strong tourism sector. The island remains a popular Mediterranean destination, with visitor numbers increasing steadily in most years.
+
+```{r}
+# Inflation Rate Trend
+inflation_plot <- ggplot(data, aes(x = Year, y = InflationRate)) +
+  geom_line(color = "blue", size = 1) +
+  labs(
+    title = "Cyprus Inflation Rate Trends",
+    x = "Year",
+    y = "Inflation Rate (%)"
+  ) +
+  theme_minimal()
+print(inflation_plot)
+
+```
+Inflation rates in Cyprus have experienced fluctuations in response to global economic conditions and domestic policy changes. The country has managed to maintain a relatively stable inflation environment.
+
+```{r}
+# Income Per Capita Trend
+income_plot <- ggplot(data, aes(x = Year, y = IncomePerCapita)) +
+  geom_line(color = "blue", size = 1) +
+  labs(
+    title = "Cyprus Income Per Capita Trends",
+    x = "Year",
+    y = "Income Per Capita (US$)"
+  ) +
+  theme_minimal()
+print(income_plot)
+
+```
+Income per capita trends indicate Cyprus' economic development, with steady improvements over the years driven by growth in high-value sectors such as finance and tourism.
+
+
+# Comparison with Other Islands
+
+```{r comparison, echo=TRUE, message=TRUE, warning=FALSE}
+# Fetching data for comparison
+countries <- c("CYP", "MLT")
+comparison_data <- WDI(
+  country = countries,
+  indicator = variables,
+  start = 2000,
+  end = 2022
+) %>%
+  rename(
+    GDP = NY.GDP.MKTP.CD,
+    Population = SP.POP.TOTL,
+    Visitors = ST.INT.ARVL,
+    InflationRate = FP.CPI.TOTL,
+    IncomePerCapita = NY.GDP.PCAP.CD,
+    Country = country,
+    Year = year
+  ) %>%
+  mutate(across(GDP:IncomePerCapita, as.numeric))
+
+# Plot GDP comparison
+gdp_plot <- ggplot(comparison_data, aes(x = Year, y = GDP, color = Country)) +
+  geom_line(size = 1) +
+  labs(
+    title = "Comparison of GDP between Cyprus and Malta",
+    x = "Year",
+    y = "GDP"
+  ) +
+  theme_minimal()
+print(gdp_plot)
+```
+
+The GDP comparison reveals that both Cyprus and Malta have experienced significant growth over the years. Cyprus generally maintains a higher GDP, reflecting its larger population and a more diversified economy, which includes sectors like tourism, shipping, and financial services. Malta, on the other hand, has shown rapid growth in recent years due to its thriving technology and gaming industries.
+
+
+```{r population_comparison, echo=TRUE, message=TRUE, warning=FALSE}
+# Plot Population comparison
+population_plot <- ggplot(comparison_data, aes(x = Year, y = Population, color = Country)) +
+  geom_line(size = 1) +
+  labs(
+    title = "Comparison of Population between Cyprus and Malta",
+    x = "Year",
+    y = "Population"
+  ) +
+  theme_minimal()
+print(population_plot)
+```
+
+Cyprus has a relatively larger and more stable population compared to Malta. While both countries have seen only modest changes in population over the years, Cyprus' larger geographic size and economic structure support a higher population. Malta's smaller land area and reliance on international migration have kept its population comparatively lower.
+
+
+```{r visitors_comparison, echo=TRUE, message=TRUE, warning=FALSE}
+# Plot Visitors comparison
+visitors_plot <- ggplot(comparison_data, aes(x = Year, y = Visitors, color = Country)) +
+  geom_line(size = 1) +
+  labs(
+    title = "Comparison of Visitors between Cyprus and Malta",
+    x = "Year",
+    y = "Number of Visitors"
+  ) +
+  theme_minimal()
+print(visitors_plot)
+```
+
+Tourism is a cornerstone of both Cyprus and Malta's economies. Cyprus consistently attracts more visitors, leveraging its larger size, diverse attractions, and rich historical sites. Malta, while smaller, has carved a niche in luxury and heritage tourism, drawing a steady influx of high-value travelers.
+
+```{r inflation_comparison, echo=TRUE, message=TRUE, warning=FALSE}
+# Plot Inflation Rate comparison
+inflation_plot <- ggplot(comparison_data, aes(x = Year, y = InflationRate, color = Country)) +
+  geom_line(size = 1) +
+  labs(
+    title = "Comparison of Inflation Rate between Cyprus and Malta",
+    x = "Year",
+    y = "Inflation Rate (%)"
+  ) +
+  theme_minimal()
+print(inflation_plot)
+```
+
+Inflation rates in Cyprus and Malta show fluctuations over time, often in response to global economic conditions and local fiscal policies. Cyprus' inflation has historically been impacted by its dependence on imported goods and energy prices. Malta, with its smaller domestic market, has experienced periods of sharper inflation due to supply chain constraints.
+
+```{r income_comparison, echo=TRUE, message=TRUE, warning=FALSE}
+# Plot Income Per Capita comparison
+income_plot <- ggplot(comparison_data, aes(x = Year, y = IncomePerCapita, color = Country)) +
+  geom_line(size = 1) +
+  labs(
+    title = "Comparison of Income Per Capita between Cyprus and Malta",
+    x = "Year",
+    y = "Income Per Capita"
+  ) +
+  theme_minimal()
+print(income_plot)
+```
+
+Income per capita highlights the economic transformations of both countries. Malta's rapid growth in the financial, technology, and iGaming sectors has led to significant increases in income per capita. Cyprus, with its larger population base, has maintained steady growth in per capita income, driven by its strong service and tourism sectors.
+
+# Population Projection
+
+```{r projection, echo=TRUE, message=TRUE, warning=FALSE}
+library(forecast)
+cyprus_data <- data %>%
+  filter(Country == "Cyprus")
+# Time series forecasting for Cyprus population
+population_ts <- ts(cyprus_data$Population, start = min(cyprus_data$Year), frequency = 1)
+population_forecast <- forecast(auto.arima(population_ts), h = 5)
+
+# Creating a data frame for the forecast
+forecast_df <- data.frame(
+  Year = seq(max(cyprus_data$Year) + 1, by = 1, length.out = 5),
+  Population = population_forecast$mean
+)
+
+# Combining historical and forecasted data
+combined_data <- rbind(
+  cyprus_data %>% select(Year, Population),
+  forecast_df
+)
+
+# Plotting the projection
+p <- ggplot(combined_data, aes(x = Year, y = Population)) +
+  geom_line(color = "blue", size = 1) +
+  geom_point(data = forecast_df, aes(x = Year, y = Population), color = "red") +
+  labs(
+    title = "Cyprus Population Projection",
+    x = "Year",
+    y = "Population"
+  ) +
+  theme_minimal()
+print(p)
+```
+The population projection for Cyprus was conducted using an ARIMA (Auto-Regressive Integrated Moving Average) time series model, a widely used method for forecasting based on historical data trends. Historical population data from 2000 to 2022 served as the input for model training. The ARIMA model was automatically tuned to identify optimal parameters, ensuring the best fit to historical data while balancing the complexity of the model.
+
+This projection suggests a continued moderate upward trend, aligning with historical growth patterns. Factors contributing to this growth include a positive natural growth rate, where the birth rate has consistently surpassed the death rate, and stable socioeconomic conditions that support demographic stability. While the ARIMA model captures historical trends effectively, it assumes no major disruptive events such as significant policy changes or economic crises. These projections provide insights for policymakers and planners to anticipate resource needs and demographic changes.
+
+# SWOT Analysis
+
+## Strengths
+Strategic Location: Positioned at the intersection of Europe, Asia, and Africa, Cyprus benefits from its strategic location for trade and cultural exchanges, enhancing its geopolitical and economic significance.
+
+Tourism Appeal: Cyprus is a renowned Mediterranean destination, attracting millions of tourists annually with its beaches, ancient landmarks, and warm climate, making tourism a vital sector for the economy.
+
+Cultural and Historical Richness: The island’s rich history and UNESCO World Heritage sites, such as the painted churches in Troodos and the ruins of Paphos, contribute to its global cultural standing and tourism appeal.
+
+## Weaknesses
+Political Division: The ongoing division between the Republic of Cyprus and the Turkish Republic of Northern Cyprus complicates governance and international relations, limiting economic and social integration.
+
+Economic Vulnerability: A heavy reliance on tourism and the services sector makes the economy susceptible to external shocks, such as global crises or shifts in travel behavior.
+
+Resource Dependence: Cyprus lacks significant natural resources, necessitating substantial imports for energy and other essentials, which increases economic vulnerability to global supply chain disruptions.
+
+## Opportunities
+Renewable Energy Potential: With abundant sunshine, Cyprus has the opportunity to expand solar energy infrastructure, reducing dependency on imported fuels and promoting sustainable growth.
+
+EU Partnerships: As an EU member, Cyprus can leverage funding and collaboration opportunities to enhance sectors like technology, education, and infrastructure development.
+
+Technology and Innovation: Growth in sectors such as fintech, digital services, and high-tech industries can diversify the economy and attract international investment.
+
+## Threats
+Geopolitical Risks: Regional instability and unresolved territorial disputes in the Eastern Mediterranean pose potential risks to security and economic growth.
+
+Climate Change: Rising temperatures, water scarcity, and the threat of sea level rise present significant challenges, particularly for agriculture and coastal tourism.
+
+Economic Shocks: Dependence on international markets and tourism makes Cyprus vulnerable to global financial instability, pandemics, or changes in consumer behavior.
+

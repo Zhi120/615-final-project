@@ -1,0 +1,10 @@
+name: 615-final-shiny
+title:
+username: zihaoz
+account: zihaoz
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 13598730
+bundleId: 9521175
+url: https://zihaoz.shinyapps.io/615-final-shiny/
+version: 1
